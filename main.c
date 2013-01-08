@@ -73,7 +73,7 @@ int initGL()
 int drawGLScene(struct point motors[4])
 {
   /* These are to calculate our fps */
-  static GLfloat xrot = 0, yrot = 0, zrot = 0;
+  /*static GLfloat xrot = 0, yrot = 0, zrot = 0;*/
 	GLUquadricObj* quadrics[4];
 	/* Clear The Screen And The Depth Buffer */
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -84,14 +84,23 @@ int drawGLScene(struct point motors[4])
 	glTranslatef(motors[0].pos.x, motors[0].pos.y, motors[0].pos.z);
 	quadrics[0] = gluNewQuadric();
 	gluSphere(quadrics[0], 1.0, 10, 10);
-	
+	/**/
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -30.0f);
+
 	glTranslatef(motors[1].pos.x, motors[1].pos.y, motors[1].pos.z);
 	quadrics[1] = gluNewQuadric();
 	gluSphere(quadrics[1], 1.0, 10, 10);
+	/**/
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -30.0f);
 
 	glTranslatef(motors[2].pos.x, motors[2].pos.y, motors[2].pos.z);
 	quadrics[2] = gluNewQuadric();
 	gluSphere(quadrics[2], 1.0, 10, 10);
+	/**/
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, -30.0f);
 
 	glTranslatef(motors[3].pos.x, motors[3].pos.y, motors[2].pos.z);
 	quadrics[3] = gluNewQuadric();
@@ -145,7 +154,6 @@ int startGL(struct point motors[4])
 	SDL_Event event;
 	const SDL_VideoInfo *videoInfo;
 	int isActive = 1;
-	GLuint cube_list;
 
 	/* initialize SDL */
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)	{
@@ -237,7 +245,7 @@ int startGL(struct point motors[4])
 	return 0;
 }
 
-void test()
+void test_constraints()
 {
 	struct point p1, p2;
 	struct v3 g; /* gravity */
@@ -296,7 +304,88 @@ void test()
 		print_point(&p2);
 		printf("================\n");
 	}
+}
 
+void make_copter(struct point points[4], struct constraint constraints[6])
+{
+	/*
+	 *  p---c---p
+	 *  |\     /|
+	 *  | \   c |
+	 *  |  \ /  |
+	 *  c   x   c
+	 *  |  /\   |
+	 *  | /  c  |
+	 *  |/    \ |
+	 *  p---c---p
+	 *
+	 *  4 points (p) connected by 6 constraints (c)
+	 */
+
+	memset(points, 0, 4 * sizeof(struct point));
+	memset(constraints, 0, 6 * sizeof(struct constraint));
+
+	points[0].pos.x = -1;
+	points[0].pos.y = -1;
+
+	points[1].pos.x = -1;
+	points[1].pos.y = 1;
+
+	points[2].pos.x = 1;
+	points[2].pos.y = -1;
+
+	points[3].pos.x = 1;
+	points[3].pos.y = 1;
+
+	constraints[0].type= PT_DIST;
+	constraints[0].p = &points[0];
+	constraints[0].p2 = &points[1];
+	constraints[0].value = 2;
+
+	constraints[1].type= PT_DIST;
+	constraints[1].p = &points[1];
+	constraints[1].p2 = &points[2];
+	constraints[1].value = 2;
+
+	constraints[2].type= PT_DIST;
+	constraints[2].p = &points[2];
+	constraints[2].p2 = &points[3];
+	constraints[2].value = 2;
+
+	constraints[3].type= PT_DIST;
+	constraints[3].p = &points[3];
+	constraints[3].p2 = &points[0];
+	constraints[3].value = 2;
+
+	constraints[4].type= PT_DIST;
+	constraints[4].p = &points[0];
+	constraints[4].p2 = &points[2];
+	constraints[4].value = sqrt(2*2 + 2*2);
+
+	constraints[5].type= PT_DIST;
+	constraints[5].p = &points[1];
+	constraints[5].p2 = &points[3];
+	constraints[5].value = sqrt(2*2 + 2*2);
+}
+
+void test()
+{
+	struct point ps[4];
+	memset(ps, 0, 4 * sizeof(struct point));
+
+	ps[0].pos.x = -5;
+	ps[0].pos.y = -5;
+
+	ps[1].pos.x = -5;
+	ps[1].pos.y = 5;
+
+	ps[2].pos.x = 5;
+	ps[2].pos.y = -5;
+
+	ps[3].pos.x = 5;
+	ps[3].pos.y = 5;
+
+	startGL(ps);
 }
 
 int main(int argc, char **argv)
