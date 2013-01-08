@@ -1,0 +1,4 @@
+copter
+======
+
+Quadcopter simulation library
